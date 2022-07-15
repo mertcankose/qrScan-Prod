@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   StyleSheet,
   Text,
@@ -15,15 +15,20 @@ import {
   responsiveWidth as rw,
   responsiveHeight as rh,
 } from '../utils/Responsive';
-import {XSquare} from './icons';
-import {getPicture} from '../api/RestApi';
-import {AuthContext} from '../context/Auth';
+import { XSquare } from './icons';
+import { getPicture } from '../api/RestApi';
+import { AuthContext } from '../context/Auth';
 import Loading from '../components/Loading';
+import SQLite from 'react-native-sqlite-storage';
+
+let db;
+db = SQLite.openDatabase({ name: "papers.db", createFromLocation: 1 });
+
 
 // var RNFS = require('react-native-fs');
 // var path = RNFS.DownloadDirectoryPath + '/test.txt';
 
-import {writeFile, readFile} from 'react-native-fs';
+import { writeFile, readFile } from 'react-native-fs';
 import XLSX from 'xlsx';
 
 let screenWidth = Dimensions.get('window').width;
@@ -100,7 +105,7 @@ const Form = ({
         setTimeout(() => {
           getPhotoFromServer(image.name);
           setIsFirstOkay(true);
-        }, 3000);
+        }, 4000);
       } else {
         getPhotoFromServer(image.name);
       }
@@ -211,14 +216,61 @@ const Form = ({
 
       console.log("haha: ", formInfos.images)
 
-      var ws = XLSX.utils.json_to_sheet(formInfos.images);
+
+      /*
+      let date = Date.now();
+      let myDate = date.toString();
+      db.transaction(tx => {
+        tx.executeSql(`create table if not EXISTS ${Date.now()} (id decimal(10),bin varchar(255),pieces varchar(255), product varchar(255), bf varchar(255), date varchar(255), length varchar(255), width varchar(255), quality varchar(255), species varchar(255), thickness varchar(255));`, [], (tx, results) => {
+          // console.log("results: ", results)
+        })
+    })
+    db.transaction(tx => {
+      tx.executeSql("SELECT * FROM papers", [], (tx, results) => {
+        let temp = [];
+        for (let i = 0; i < results.rows.length; ++i) {
+          temp.push(results.rows.item(i));
+        }
+        console.log("results: ", temp)
+      })
+    })
+      */
+
+      //SQLITE PROCESSES
+
+      // CREATE TABLE
+
+      // INSERT INTO ILE JSON I INSERT ET
+
+      // SELECT * FROM, GROUP BY, SELECT POSITION,PACK
+
+      // YUKARIDAKI 3 QUERYNIN SONUCUNU EXCELIN 3 FARKLI SAYFASI OLARAK YAZ
+
+
+      /*
+      SELECT * from test; // excelin ilk sayfası
+ 
+      SELECT product ,thickness ,count(product) from test
+        GROUP by product, thickness
+        ORDER by product asc; //excelin ikinci sayfası
+      
+      SELECT position,x,y From test //excelin üçüncü sayfası
+      */
+
+
+      var ws1 = XLSX.utils.json_to_sheet(formInfos.images);
+      var ws2 = XLSX.utils.json_to_sheet(formInfos.images);
+      var ws3 = XLSX.utils.json_to_sheet(formInfos.images);
 
       var wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Prova');
+      XLSX.utils.book_append_sheet(wb, ws1, 'Summary');
+      XLSX.utils.book_append_sheet(wb, ws2, 'FaceAndGradeCount');
+      XLSX.utils.book_append_sheet(wb, ws3, 'PackPosition');
 
-      const wbout = XLSX.write(wb, {type: 'binary', bookType: 'xlsx'});
+      const wbout = XLSX.write(wb, { type: 'binary', bookType: 'xlsx' });
+      let myDate = Date.now().toString();
       var RNFS = require('react-native-fs');
-      var file = RNFS.DocumentDirectoryPath + '/ekmek.xlsx';
+      var file = RNFS.DocumentDirectoryPath + `/${myDate}.xlsx`;
       writeFile(file, wbout, 'ascii')
         .then(r => {
           console.log('SUCCESS: ', r);
@@ -387,7 +439,7 @@ const Form = ({
         </View>
         <Image
           style={styles.image}
-          source={{uri: image.uri}}
+          source={{ uri: image.uri }}
           resizeMode="contain"
         />
       </ScrollView>

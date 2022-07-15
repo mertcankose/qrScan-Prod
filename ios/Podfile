@@ -9,7 +9,7 @@ target 'QrScan' do
 
 
   # Add the target-specific framework search paths to the general framework search paths.
-  pod 'rn-fetch-blob', :path => '../node_modules/rn-fetch-blob'
+  pod 'react-native-sqlite-storage', :path => '../node_modules/react-native-sqlite-storage'
 
   # Flags change depending on the env values.
   flags = get_default_flags()

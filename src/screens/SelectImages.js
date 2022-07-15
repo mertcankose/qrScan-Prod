@@ -18,6 +18,8 @@ import ImageResizer from 'react-native-image-resizer';
 import Loading from '../components/Loading';
 //import Carousel from 'react-native-snap-carousel';
 
+
+
 let screenWidth = Dimensions.get('window').width;
 let screenHeight = Dimensions.get('window').height;
 
