@@ -101,6 +101,8 @@ const Form = ({
       changeValues();
     }
     if (unique == paging) {
+      getPhotoFromServer(image.name);
+      /*
       if (paging == 1 && isFirstOkay == false) {
         setTimeout(() => {
           getPhotoFromServer(image.name);
@@ -109,6 +111,7 @@ const Form = ({
       } else {
         getPhotoFromServer(image.name);
       }
+      */
     }
   }, [paging]);
 
@@ -197,7 +200,7 @@ const Form = ({
   const writeToExcel = () => {
     changeValues();
     setTimeout(() => {
-      console.log('last: ', JSON.stringify(formInfos));
+      // console.log('last: ', JSON.stringify(formInfos));
 
       formInfos.images.forEach(el => {
         delete el['statusCode'];
@@ -214,33 +217,118 @@ const Form = ({
         formInfos.images[i] = obj.response || obj;
       }
 
-      console.log("haha: ", formInfos.images)
-
-
-      /*
-      let date = Date.now();
-      let myDate = date.toString();
-      db.transaction(tx => {
-        tx.executeSql(`create table if not EXISTS ${Date.now()} (id decimal(10),bin varchar(255),pieces varchar(255), product varchar(255), bf varchar(255), date varchar(255), length varchar(255), width varchar(255), quality varchar(255), species varchar(255), thickness varchar(255));`, [], (tx, results) => {
-          // console.log("results: ", results)
-        })
-    })
-    db.transaction(tx => {
-      tx.executeSql("SELECT * FROM papers", [], (tx, results) => {
-        let temp = [];
-        for (let i = 0; i < results.rows.length; ++i) {
-          temp.push(results.rows.item(i));
-        }
-        console.log("results: ", temp)
-      })
-    })
-      */
 
       //SQLITE PROCESSES
-
+      let tableName = 'paper' + Date.now().toString();
       // CREATE TABLE
+      db.transaction(tx => {
+        tx.executeSql(`CREATE TABLE IF NOT EXISTS ${tableName} (id nvarchar(100),bin nvarchar(100),pieces nvarchar(100), product nvarchar(100), bf nvarchar(100), productDate nvarchar(100), length nvarchar(100), productWidth nvarchar(100), quality nvarchar(100), species nvarchar(100), thickness nvarchar(100));`, [], (tx, results) => {
+          console.log("create table results: ", results)
+        })
+      })
+
 
       // INSERT INTO ILE JSON I INSERT ET
+      formInfos.images.forEach(el => {
+        let id = el.product_id;
+        let bin = el.bin;
+        let pieces = el.pieces;
+        let product = el.product.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
+        let bf = el.bf.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
+        let date = el.date_of_production.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
+        let length = el.length.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
+        let width = el.width.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
+        let quality = el.quality.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
+        let species = el.species.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
+        let thickness = el.thickness.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
+
+        let query = "INSERT INTO " + tableName + " (id, bin, pieces, product, bf, productDate, length, productWidth, quality, species, thickness) VALUES";
+        query = query + "('"
+          + id
+          + "','"
+          + bin
+          + "','"
+          + pieces
+          + "','"
+          + product
+          + "','"
+          + bf
+          + "','"
+          + date
+          + "','"
+          + length
+          + "','"
+          + width
+          + "','"
+          + quality
+          + "','"
+          + species
+          + "','"
+          + thickness
+          + "')";
+
+        console.log("query: ", query);
+        db.transaction(tx => {
+          tx.executeSql(query, [], (tx, results) => {
+            console.log("insert into results: ", results)
+          })
+        })
+      })
+
+      db.transaction(tx => {
+        let firstExcelTab = [];
+        tx.executeSql(`SELECT * FROM ${tableName}`, [], (tx, results) => {
+          for (let i = 0; i < results.rows.length; ++i) {
+            firstExcelTab.push(results.rows.item(i));
+          }
+        })
+        let secondExcelTab = [];
+        tx.executeSql(`SELECT product, thickness, count(product) FROM ${tableName} GROUP by product, thickness ORDER by product asc; `, [], (tx, results) => {
+          for (let i = 0; i < results.rows.length; ++i) {
+            secondExcelTab.push(results.rows.item(i));
+            console.log("second: ", secondExcelTab);
+          }
+        })
+
+        var ws1 = XLSX.utils.json_to_sheet(firstExcelTab);
+        var ws2 = XLSX.utils.json_to_sheet(secondExcelTab);
+        var ws3 = XLSX.utils.json_to_sheet(secondExcelTab);
+
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws1, 'Summary');
+        XLSX.utils.book_append_sheet(wb, ws2, 'FaceAndGradeCount');
+        XLSX.utils.book_append_sheet(wb, ws3, 'PackPosition');
+
+        const wbout = XLSX.write(wb, { type: 'binary', bookType: 'xlsx' });
+        var RNFS = require('react-native-fs');
+        var file = RNFS.DocumentDirectoryPath + `/${tableName}.xlsx`;
+        writeFile(file, wbout, 'ascii')
+          .then(r => {
+            console.log('SUCCESS: ', r);
+            console.log('file: ', file);
+          })
+          .catch(e => {
+            console.log('ERROR: ', e);
+          });
+
+      })
+
+      /*
+      let secondExcelTab = [];
+      db.transaction(tx => {
+        tx.executeSql(`SELECT product, thickness, count(product) FROM ${tableName} GROUP by product, thickness ORDER by product asc; `, [], (tx, results) => {
+          for (let i = 0; i < results.rows.length; ++i) {
+            secondExcelTab.push(results.rows.item(i));
+            console.log("second: ", secondExcelTab);
+          }
+        })
+      })
+      */
+
+
+
+
+
 
       // SELECT * FROM, GROUP BY, SELECT POSITION,PACK
 
@@ -257,28 +345,6 @@ const Form = ({
       SELECT position,x,y From test //excelin üçüncü sayfası
       */
 
-
-      var ws1 = XLSX.utils.json_to_sheet(formInfos.images);
-      var ws2 = XLSX.utils.json_to_sheet(formInfos.images);
-      var ws3 = XLSX.utils.json_to_sheet(formInfos.images);
-
-      var wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws1, 'Summary');
-      XLSX.utils.book_append_sheet(wb, ws2, 'FaceAndGradeCount');
-      XLSX.utils.book_append_sheet(wb, ws3, 'PackPosition');
-
-      const wbout = XLSX.write(wb, { type: 'binary', bookType: 'xlsx' });
-      let myDate = Date.now().toString();
-      var RNFS = require('react-native-fs');
-      var file = RNFS.DocumentDirectoryPath + `/${myDate}.xlsx`;
-      writeFile(file, wbout, 'ascii')
-        .then(r => {
-          console.log('SUCCESS: ', r);
-          console.log('file: ', file);
-        })
-        .catch(e => {
-          console.log('ERROR: ', e);
-        });
 
       //
       /*
@@ -311,12 +377,14 @@ const Form = ({
     <View style={[styles.outerContainer, style]} {...props}>
       <View style={styles.formHeadContainer}>
         <Text style={styles.imageTitle}>Image: {count + 1}</Text>
+        {/*
         <TouchableOpacity
           style={styles.removeImageButton}
           activeOpacity={0.8}
           onPress={() => removeImage()}>
           <XSquare width="24" height="24" color="#000" />
         </TouchableOpacity>
+        */}
       </View>
       {isLoading && <Loading />}
       <ScrollView contentContainerStyle={[styles.container]}>
