@@ -15,24 +15,17 @@ import {
   responsiveWidth as rw,
   responsiveHeight as rh,
 } from '../utils/Responsive';
-import { XSquare } from './icons';
 import { getPicture } from '../api/RestApi';
 import { AuthContext } from '../context/Auth';
 import Loading from '../components/Loading';
 import SQLite from 'react-native-sqlite-storage';
-
-let db;
-db = SQLite.openDatabase({ name: "papers.db", createFromLocation: 1 });
-
-
-// var RNFS = require('react-native-fs');
-// var path = RNFS.DownloadDirectoryPath + '/test.txt';
-
-import { writeFile, readFile } from 'react-native-fs';
+import { writeFile } from 'react-native-fs';
 import XLSX from 'xlsx';
+const RNFS = require('react-native-fs');
+
+let db = SQLite.openDatabase({ name: "papers.db", createFromLocation: 1 });
 
 let screenWidth = Dimensions.get('window').width;
-let screenHeight = Dimensions.get('window').height;
 
 const Form = ({
   image,
@@ -57,6 +50,10 @@ const Form = ({
   const [pieces, setPieces] = useState('');
   const [bin, setBin] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [firstExcelTab, setFirstExcelTab] = useState([]);
+  const [secondExcelTab, setSecondExcelTab] = useState([]);
+  const [thirdExcelTab, setThirdExcelTab] = useState([]);
+  const [tableName] = useState("paper" + Date.now());
 
   const {
     cognitoToken,
@@ -69,30 +66,6 @@ const Form = ({
     isChangeFormFromServer,
     setIsChangeFormFromServer,
   } = useContext(AuthContext);
-
-  /*
-  useEffect(() => {
-    // controlForm();
-  }, []);
-  */
-
-  /*
-  useEffect(() => {
-    controlForm();
-  }, [
-    dateOfProduction,
-    productId,
-    product,
-    species,
-    quality,
-    thickness,
-    width,
-    length,
-    bf,
-    pieces,
-    bin,
-  ]);
-  */
 
   useEffect(() => {
     setIsChangeFormFromServer(false);
@@ -139,10 +112,6 @@ const Form = ({
     changeFormInfos(newObject);
   };
 
-  const removeImage = () => {
-    deleteImage(image.sourceURL);
-  };
-
   const placementStates = () => {
     formInfos.images.forEach(el => {
       if (el.filename == image.name) {
@@ -175,203 +144,137 @@ const Form = ({
     setIsLoading(false);
   };
 
-  /*
-  const controlForm = () => {
-    if (
-      dateOfProduction == '' &&
-      productId == '' &&
-      product == '' &&
-      species == '' &&
-      quality == '' &&
-      thickness == '' &&
-      width == '' &&
-      length == '' &&
-      bf == '' &&
-      pieces == '' &&
-      bin == ''
-    ) {
-      formOkay(false);
-    } else {
-      formOkay(true);
-    }
+  useEffect(() => {
+    writeToFile();
+  }, [firstExcelTab, secondExcelTab])
+
+  const writeToExcel = async () => {
+    changeValues()
+    writeToDb();
+    //writeToFile();
   };
-  */
 
-  const writeToExcel = () => {
-    changeValues();
-    setTimeout(() => {
-      // console.log('last: ', JSON.stringify(formInfos));
+  const writeToDb = () => {
+    formInfos.images.forEach(el => {
+      delete el['statusCode'];
+      delete el['filename'];
+    });
 
-      formInfos.images.forEach(el => {
-        delete el['statusCode'];
-        delete el['filename'];
-      });
-
-      for (var i = 0, len = formInfos.images.length; i < len; i++) {
-        obj = formInfos.images[i];
-        for (var key in obj) {
-          if (key !== 'response' && obj.response) {
-            obj.data[key] = obj[key];
-          }
+    for (var i = 0, len = formInfos.images.length; i < len; i++) {
+      obj = formInfos.images[i];
+      for (var key in obj) {
+        if (key !== 'response' && obj.response) {
+          obj.data[key] = obj[key];
         }
-        formInfos.images[i] = obj.response || obj;
       }
+      formInfos.images[i] = obj.response || obj;
+    }
 
 
-      //SQLITE PROCESSES
-      let tableName = 'paper' + Date.now().toString();
-      // CREATE TABLE
+    //SQLITE PROCESSES
+    //let tableName = 'paper' + Date.now().toString();
+    // CREATE TABLE
+    db.transaction(tx => {
+      tx.executeSql(`CREATE TABLE IF NOT EXISTS ${tableName} (id nvarchar(100),bin nvarchar(100),pieces nvarchar(100), product nvarchar(100), bf nvarchar(100), productDate nvarchar(100), length nvarchar(100), productWidth nvarchar(100), quality nvarchar(100), species nvarchar(100), thickness nvarchar(100));`, [], (tx, results) => {
+        console.log("create table results: ", results)
+      })
+    })
+
+
+    // INSERT INTO ILE JSON I INSERT ET
+    formInfos.images.forEach(el => {
+      let id = el.product_id;
+      let bin = el.bin;
+      let pieces = el.pieces;
+      let product = el.product.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
+      let bf = el.bf.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
+      let date = el.date_of_production.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
+      let length = el.length.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
+      let width = el.width.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
+      let quality = el.quality.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
+      let species = el.species.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
+      let thickness = el.thickness.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
+
+      let query = "INSERT INTO " + tableName + " (id, bin, pieces, product, bf, productDate, length, productWidth, quality, species, thickness) VALUES";
+      query = query + "('"
+        + id
+        + "','"
+        + bin
+        + "','"
+        + pieces
+        + "','"
+        + product
+        + "','"
+        + bf
+        + "','"
+        + date
+        + "','"
+        + length
+        + "','"
+        + width
+        + "','"
+        + quality
+        + "','"
+        + species
+        + "','"
+        + thickness
+        + "')";
+
+      console.log("query: ", query);
       db.transaction(tx => {
-        tx.executeSql(`CREATE TABLE IF NOT EXISTS ${tableName} (id nvarchar(100),bin nvarchar(100),pieces nvarchar(100), product nvarchar(100), bf nvarchar(100), productDate nvarchar(100), length nvarchar(100), productWidth nvarchar(100), quality nvarchar(100), species nvarchar(100), thickness nvarchar(100));`, [], (tx, results) => {
-          console.log("create table results: ", results)
+        tx.executeSql(query, [], (tx, results) => {
+          console.log("insert into results: ", results)
         })
       })
+    })
 
-
-      // INSERT INTO ILE JSON I INSERT ET
-      formInfos.images.forEach(el => {
-        let id = el.product_id;
-        let bin = el.bin;
-        let pieces = el.pieces;
-        let product = el.product.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
-        let bf = el.bf.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
-        let date = el.date_of_production.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
-        let length = el.length.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
-        let width = el.width.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
-        let quality = el.quality.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
-        let species = el.species.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
-        let thickness = el.thickness.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
-
-        let query = "INSERT INTO " + tableName + " (id, bin, pieces, product, bf, productDate, length, productWidth, quality, species, thickness) VALUES";
-        query = query + "('"
-          + id
-          + "','"
-          + bin
-          + "','"
-          + pieces
-          + "','"
-          + product
-          + "','"
-          + bf
-          + "','"
-          + date
-          + "','"
-          + length
-          + "','"
-          + width
-          + "','"
-          + quality
-          + "','"
-          + species
-          + "','"
-          + thickness
-          + "')";
-
-        console.log("query: ", query);
-        db.transaction(tx => {
-          tx.executeSql(query, [], (tx, results) => {
-            console.log("insert into results: ", results)
-          })
-        })
+    let firstExcelTabArr = [];
+    let secondExcelTabArr = [];
+    db.transaction(tx => {
+      tx.executeSql(`SELECT * FROM ${tableName}`, [], (tx, results) => {
+        for (let i = 0; i < results.rows.length; ++i) {
+          firstExcelTabArr.push(results.rows.item(i));
+          //console.log("firstExcelTab: ", firstExcelTabArr);
+          setFirstExcelTab(firstExcelTabArr);
+        }
       })
 
-      db.transaction(tx => {
-        let firstExcelTab = [];
-        tx.executeSql(`SELECT * FROM ${tableName}`, [], (tx, results) => {
-          for (let i = 0; i < results.rows.length; ++i) {
-            firstExcelTab.push(results.rows.item(i));
-          }
-        })
-        let secondExcelTab = [];
-        tx.executeSql(`SELECT product, thickness, count(product) FROM ${tableName} GROUP by product, thickness ORDER by product asc; `, [], (tx, results) => {
-          for (let i = 0; i < results.rows.length; ++i) {
-            secondExcelTab.push(results.rows.item(i));
-            console.log("second: ", secondExcelTab);
-          }
-        })
-
-        var ws1 = XLSX.utils.json_to_sheet(firstExcelTab);
-        var ws2 = XLSX.utils.json_to_sheet(secondExcelTab);
-        var ws3 = XLSX.utils.json_to_sheet(secondExcelTab);
-
-        var wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws1, 'Summary');
-        XLSX.utils.book_append_sheet(wb, ws2, 'FaceAndGradeCount');
-        XLSX.utils.book_append_sheet(wb, ws3, 'PackPosition');
-
-        const wbout = XLSX.write(wb, { type: 'binary', bookType: 'xlsx' });
-        var RNFS = require('react-native-fs');
-        var file = RNFS.DocumentDirectoryPath + `/${tableName}.xlsx`;
-        writeFile(file, wbout, 'ascii')
-          .then(r => {
-            console.log('SUCCESS: ', r);
-            console.log('file: ', file);
-          })
-          .catch(e => {
-            console.log('ERROR: ', e);
-          });
-
+      tx.executeSql(`SELECT product, thickness, count(product) FROM ${tableName} GROUP by product, thickness ORDER by product asc; `, [], (tx, results) => {
+        for (let i = 0; i < results.rows.length; ++i) {
+          secondExcelTabArr.push(results.rows.item(i));
+          setSecondExcelTab(secondExcelTabArr);
+          //console.log("second: ", secondExcelTabArr);
+        }
       })
+    })
+  }
 
-      /*
-      let secondExcelTab = [];
-      db.transaction(tx => {
-        tx.executeSql(`SELECT product, thickness, count(product) FROM ${tableName} GROUP by product, thickness ORDER by product asc; `, [], (tx, results) => {
-          for (let i = 0; i < results.rows.length; ++i) {
-            secondExcelTab.push(results.rows.item(i));
-            console.log("second: ", secondExcelTab);
-          }
-        })
+
+  const writeToFile = () => {
+    // console.log('last: ', JSON.stringify(formInfos));
+    console.log("ff: ", firstExcelTab)
+    var ws1 = XLSX.utils.json_to_sheet(firstExcelTab);
+    var ws2 = XLSX.utils.json_to_sheet(secondExcelTab);
+    var ws3 = XLSX.utils.json_to_sheet(secondExcelTab);
+
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws1, 'Summary');
+    XLSX.utils.book_append_sheet(wb, ws2, 'FaceAndGradeCount');
+    XLSX.utils.book_append_sheet(wb, ws3, 'PackPosition');
+
+    const wbout = XLSX.write(wb, { type: 'binary', bookType: 'xlsx' });
+    var RNFS = require('react-native-fs');
+    var file = RNFS.DocumentDirectoryPath + `/${tableName}.xlsx`;
+    writeFile(file, wbout, 'ascii')
+      .then(r => {
+        console.log('SUCCESS: ', r);
+        console.log('file: ', file);
       })
-      */
+      .catch(e => {
+        console.log('ERROR: ', e);
+      });
+  }
 
-
-
-
-
-
-      // SELECT * FROM, GROUP BY, SELECT POSITION,PACK
-
-      // YUKARIDAKI 3 QUERYNIN SONUCUNU EXCELIN 3 FARKLI SAYFASI OLARAK YAZ
-
-
-      /*
-      SELECT * from test; // excelin ilk sayfası
- 
-      SELECT product ,thickness ,count(product) from test
-        GROUP by product, thickness
-        ORDER by product asc; //excelin ikinci sayfası
-      
-      SELECT position,x,y From test //excelin üçüncü sayfası
-      */
-
-
-      //
-      /*
-      const values = [
-        ['build', '2017-11-05T05:40:35.515Z'],
-        ['deploy', '2017-11-05T05:42:04.810Z'],
-      ];
-
-      // construct csvString
-      const headerString = 'event,timestamp\n';
-      const rowString = values.map(d => `${d[0]},${d[1]}\n`).join('');
-      const csvString = `${headerString}${rowString}`;
-
-      // write the current list of answers to a local csv file
-      const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/data.csv`;
-      console.log('pathToWrite', pathToWrite);
-      // pathToWrite /storage/emulated/0/Download/data.csv
-      RNFetchBlob.fs
-        .writeFile(pathToWrite, csvString, 'utf8')
-        .then(() => {
-          console.log(`wrote file ${pathToWrite}`);
-          // wrote file /storage/emulated/0/Download/data.csv
-        })
-        .catch(error => console.error(error));
-        */
-    }, 1000);
-  };
 
   return (
     <View style={[styles.outerContainer, style]} {...props}>
