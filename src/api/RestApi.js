@@ -4,8 +4,6 @@ var fs = require('react-native-fs');
 var Buffer = require('buffer/').Buffer;
 
 export const getPicture = async (filename, token) => {
-  //console.log('getPicture file name: , ', filename);
-
   try {
     const response = await fetch(
       `${baseURL}/transactions?filename=${filename}`,

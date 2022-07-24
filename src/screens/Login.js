@@ -23,7 +23,6 @@ const Login = () => {
   const {addToken} = useContext(AuthContext);
 
   const loginSystem = () => {
-    console.log('ass');
     if (username === 'admin' && password === 'admin') {
       addToken('token');
     } else {

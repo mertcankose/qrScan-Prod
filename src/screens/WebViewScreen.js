@@ -10,14 +10,10 @@ const PaymentWebView = () => {
 
   const handleStateChanges = params => {
     const {url} = params;
-    //console.log('url: ', url);
 
     if (url.includes('id_token')) {
       const id_key = url.split('=')[1].split('&access')[0];
       const access_key = url.split('=')[2].split('&expires')[0];
-
-      console.log('id', id_key);
-      console.log('access', access_key);
 
       addCognitoToken(access_key);
 

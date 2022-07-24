@@ -34,7 +34,6 @@ const Navigation = () => {
         const currentRouteName = navigationRef.getCurrentRoute().name;
 
         if (previousRouteName !== currentRouteName) {
-          //console.log(currentRouteName);
           changeCurrentRoute(currentRouteName);
         }
         routeNameRef.current = currentRouteName;

@@ -1,23 +1,45 @@
-import { StyleSheet, Text, View, Pressable } from "react-native";
-import React from "react";
-import { ScrollView } from "react-native-gesture-handler";
+import {StyleSheet, Text, View, Pressable} from 'react-native';
+import React, {useState, useEffect, useContext} from 'react';
+import {ScrollView} from 'react-native-gesture-handler';
+import SQLite from 'react-native-sqlite-storage';
+import moment from 'moment';
+import {AuthContext} from '../context/Auth';
 
-const excel_data = [
-  {
-    id: 1,
-    name: "03.05.2022.xls",
-  },
-  {
-    id: 2,
-    name: "22.04.2022.xls",
-  },
-  {
-    id: 3,
-    name: "02.11.2021.xls",
-  },
-];
+let db = SQLite.openDatabase({name: 'papers.db', createFromLocation: 1});
 
-const ExcelList = ({ navigation }) => {
+const ExcelList = ({navigation}) => {
+  const [fileName, setFileName] = useState('');
+  const [fileDate, setFileDate] = useState('');
+  const [fileDescription, setFileDescription] = useState('');
+
+  const {addElementToFormInfos} = useContext(AuthContext);
+
+  const [tables, setTables] = useState([]);
+
+  useEffect(() => {
+    db.transaction(tx => {
+      tx.executeSql(
+        "SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite%'",
+        [],
+        (tx, results) => {
+          let temp = [];
+          for (let i = 0; i < results.rows.length; ++i) {
+            temp.push(results.rows.item(i));
+          }
+          setTables(temp);
+        },
+      );
+    });
+  }, []);
+
+  const nextPage = name => {
+    addElementToFormInfos(fileName, fileDate, fileDescription);
+    navigation.navigate('CommonCreateStack', {
+      screen: 'SelectImages',
+      params: {type: 'excel', fileName: name},
+    });
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.textsContainer}>
@@ -27,18 +49,16 @@ const ExcelList = ({ navigation }) => {
         </Text>
       </View>
 
-      {excel_data.map((item, index) => (
+      {tables.map((item, index) => (
         <Pressable
           key={index}
           style={styles.excelContainer}
-          onPress={() =>
-            navigation.navigate("CommonCreateStack", {
-              screen: "SelectImages",
-              params: { type: "excel" },
-            })
-          }
-        >
-          <Text>{item.name}</Text>
+          onPress={() => nextPage(item.name)}>
+          <Text>
+            {moment(parseInt(item.name.split('_')[1])).format(
+              'DD/MM/YYYY - HH:mm:ss',
+            )}
+          </Text>
         </Pressable>
       ))}
     </ScrollView>
@@ -57,21 +77,21 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    fontWeight: "600",
+    fontWeight: '600',
     fontSize: 18,
-    textAlign: "center",
+    textAlign: 'center',
   },
   subTitle: {
     fontSize: 16,
-    color: "#6f76a7",
+    color: '#6f76a7',
     marginTop: 9,
-    textAlign: "center",
+    textAlign: 'center',
   },
   excelContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: "#c8ceed",
+    borderBottomColor: '#c8ceed',
     paddingHorizontal: 10,
     paddingVertical: 12,
     marginBottom: 3,

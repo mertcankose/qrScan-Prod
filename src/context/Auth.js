@@ -1,13 +1,12 @@
-import React, { useState, createContext, useEffect } from 'react';
+import React, {useState, createContext, useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
+export const AuthProvider = ({children}) => {
   const [cognitoToken, setCognitoToken] = useState(null);
   const [formInfos, setFormInfos] = useState(null);
   const [isFirstOkay, setIsFirstOkay] = useState(false);
-  const [isChangeFormFromServer, setIsChangeFormFromServer] = useState(false);
 
   useEffect(() => {
     const tokenControl = async () => {
@@ -41,7 +40,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const addElementToFormInfos = (fileName = "empty", fileDate = "empty", fileDescription = "empty") => {
+  const addElementToFormInfos = (
+    fileName = 'empty',
+    fileDate = 'empty',
+    fileDescription = 'empty',
+  ) => {
     let infos = {
       filename: fileName,
       filedate: fileDate,
@@ -51,20 +54,18 @@ export const AuthProvider = ({ children }) => {
     setFormInfos(infos);
   };
 
-  const addImageToFormInfos = image => {
-    setFormInfos({ ...formInfos, images: [...formInfos.images, image] });
-    setIsChangeFormFromServer(true);
+  const addImageToFormInfos = async image => {
+    setFormInfos({...formInfos, images: [...formInfos.images, image]});
   };
 
   const changeFormInfos = obj => {
     let currentFormInfos = JSON.parse(JSON.stringify(formInfos));
-    //console.log('prev: ', currentFormInfos.images);
     currentFormInfos.images.forEach((el, index) => {
-      if (el.filename == obj.filename) {
+      if (el.filename === obj.filename) {
         currentFormInfos.images[index] = obj;
       }
     });
-    setFormInfos({ ...formInfos, images: currentFormInfos.images });
+    setFormInfos({...formInfos, images: currentFormInfos.images});
   };
 
   return (
@@ -80,8 +81,6 @@ export const AuthProvider = ({ children }) => {
         isFirstOkay,
         setIsFirstOkay,
         changeFormInfos,
-        isChangeFormFromServer,
-        setIsChangeFormFromServer,
       }}>
       {children}
     </AuthContext.Provider>

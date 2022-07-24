@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, {useState, useEffect, useContext} from 'react';
 import {
   StyleSheet,
   Text,
@@ -11,33 +12,37 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from 'react-native';
-import {
-  responsiveWidth as rw,
-  responsiveHeight as rh,
-} from '../utils/Responsive';
-import { getPicture } from '../api/RestApi';
-import { AuthContext } from '../context/Auth';
+import {responsiveWidth as rw} from '../utils/Responsive';
+import {getPicture} from '../api/RestApi';
+import {AuthContext} from '../context/Auth';
 import Loading from '../components/Loading';
-import SQLite from 'react-native-sqlite-storage';
-import { writeFile } from 'react-native-fs';
+import {writeFile} from 'react-native-fs';
 import XLSX from 'xlsx';
-const RNFS = require('react-native-fs');
-
-let db = SQLite.openDatabase({ name: "papers.db", createFromLocation: 1 });
+import {
+  createTableQuery,
+  executeSQL,
+  groupByQuery,
+  insertQuery,
+  partialSelectQuery,
+  selectQuery,
+} from '../api/Sql';
+import RNFS from 'react-native-fs';
 
 let screenWidth = Dimensions.get('window').width;
 
 const Form = ({
+  navigation,
   image,
   count,
   deleteImage,
   total,
   unique,
   paging,
-  // formOkay,
   style,
+  tableName,
   ...props
 }) => {
+  // related product
   const [dateOfProduction, setDateOfProduction] = useState('');
   const [productId, setProductId] = useState('');
   const [product, setProduct] = useState('');
@@ -49,50 +54,95 @@ const Form = ({
   const [bf, setBf] = useState('');
   const [pieces, setPieces] = useState('');
   const [bin, setBin] = useState('');
+  const [position, setPosition] = useState('');
+  const [x, setX] = useState('');
+  const [y, setY] = useState('');
+  // related screen
   const [isLoading, setIsLoading] = useState(false);
-  const [firstExcelTab, setFirstExcelTab] = useState([]);
-  const [secondExcelTab, setSecondExcelTab] = useState([]);
-  const [thirdExcelTab, setThirdExcelTab] = useState([]);
-  const [tableName] = useState("paper" + Date.now());
+  // logic
+  const [isSetImage, setIsSetImage] = useState(false);
 
   const {
     cognitoToken,
     formInfos,
+    setFormInfos,
     addImageToFormInfos,
-    isFirstOkay,
-    setIsFirstOkay,
     changeFormInfos,
     removeCognitoToken,
-    isChangeFormFromServer,
-    setIsChangeFormFromServer,
   } = useContext(AuthContext);
 
   useEffect(() => {
-    setIsChangeFormFromServer(false);
-    setIsLoading(true);
-    if (unique + 1 == paging) {
-      changeValues();
-    }
-    if (unique == paging) {
-      getPhotoFromServer(image.name);
-      /*
-      if (paging == 1 && isFirstOkay == false) {
-        setTimeout(() => {
-          getPhotoFromServer(image.name);
-          setIsFirstOkay(true);
-        }, 4000);
-      } else {
-        getPhotoFromServer(image.name);
-      }
-      */
-    }
+    getPhoto();
   }, [paging]);
 
   useEffect(() => {
-    if (isChangeFormFromServer == true) {
+    if (isSetImage) {
       placementStates();
     }
-  }, [isChangeFormFromServer]);
+  }, [isSetImage]);
+
+  const getPhoto = () => {
+    setIsLoading(true);
+    if (unique === paging) {
+      getPhotoFromServer(image.name);
+    }
+    setIsLoading(false);
+  };
+
+  const getPhotoFromServer = async name => {
+    let response = await getPicture(name, cognitoToken);
+    if (response.message === 'The incoming token has expired') {
+      removeCognitoToken();
+    }
+    if (response.response !== null) {
+      await addImageToFormInfos(response);
+
+      setIsSetImage(true);
+    }
+  };
+
+  const placementStates = () => {
+    if (formInfos.images.length > 0) {
+      formInfos.images.forEach(el => {
+        if (el !== undefined) {
+          if (el.filename === image.name) {
+            setDateOfProduction(el?.response.date_of_production);
+            setProductId(el?.response.product_id);
+            setProduct(el?.response.product);
+            setSpecies(el?.response.species);
+            setQuality(el?.response.quality);
+            setThickness(el?.response.thickness);
+            setWidth(el?.response.width);
+            setLength(el?.response.length);
+            setBf(el?.response.bf);
+            setPieces(el?.response.pieces);
+            setBin(el?.response.bin);
+          }
+        }
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (unique === paging && isSetImage) {
+      changeValues();
+    }
+  }, [
+    dateOfProduction,
+    productId,
+    product,
+    species,
+    quality,
+    thickness,
+    width,
+    length,
+    bf,
+    pieces,
+    bin,
+    position,
+    x,
+    y,
+  ]);
 
   const changeValues = () => {
     let newObject = {
@@ -108,60 +158,26 @@ const Form = ({
       bf: bf,
       pieces: pieces,
       bin: bin,
+      position: position,
+      x: x,
+      y: y,
     };
     changeFormInfos(newObject);
   };
 
-  const placementStates = () => {
+  const submitForms = async () => {
+    // changeValues(); // update formInfos
+    writeToDb(writeToExcel); // write to sqlite
+  };
+
+  const writeToDb = async () => {
     formInfos.images.forEach(el => {
-      if (el.filename == image.name) {
-        if (el) {
-          setDateOfProduction(el.response.date_of_production);
-          setProductId(el.response.product_id);
-          setProduct(el.response.product);
-          setSpecies(el.response.species);
-          setQuality(el.response.quality);
-          setThickness(el.response.thickness);
-          setWidth(el.response.width);
-          setLength(el.response.length);
-          setBf(el.response.bf);
-          setPieces(el.response.pieces);
-          setBin(el.response.bin);
-        }
-      }
-    });
-  };
-
-  const getPhotoFromServer = async name => {
-    let response = await getPicture(name, cognitoToken);
-    //console.log('response: ', response);
-    if (response.message == 'The incoming token has expired') {
-      removeCognitoToken();
-    }
-    if (response.response !== null) {
-      addImageToFormInfos(response);
-    }
-    setIsLoading(false);
-  };
-
-  useEffect(() => {
-    writeToFile();
-  }, [firstExcelTab, secondExcelTab])
-
-  const writeToExcel = async () => {
-    changeValues()
-    writeToDb();
-    //writeToFile();
-  };
-
-  const writeToDb = () => {
-    formInfos.images.forEach(el => {
-      delete el['statusCode'];
-      delete el['filename'];
+      delete el.statusCode;
+      delete el.filename;
     });
 
     for (var i = 0, len = formInfos.images.length; i < len; i++) {
-      obj = formInfos.images[i];
+      let obj = formInfos.images[i];
       for (var key in obj) {
         if (key !== 'response' && obj.response) {
           obj.data[key] = obj[key];
@@ -170,116 +186,68 @@ const Form = ({
       formInfos.images[i] = obj.response || obj;
     }
 
+    executeSQL(createTableQuery(tableName));
 
-    //SQLITE PROCESSES
-    //let tableName = 'paper' + Date.now().toString();
-    // CREATE TABLE
-    db.transaction(tx => {
-      tx.executeSql(`CREATE TABLE IF NOT EXISTS ${tableName} (id nvarchar(100),bin nvarchar(100),pieces nvarchar(100), product nvarchar(100), bf nvarchar(100), productDate nvarchar(100), length nvarchar(100), productWidth nvarchar(100), quality nvarchar(100), species nvarchar(100), thickness nvarchar(100));`, [], (tx, results) => {
-        console.log("create table results: ", results)
-      })
-    })
-
-
-    // INSERT INTO ILE JSON I INSERT ET
     formInfos.images.forEach(el => {
-      let id = el.product_id;
-      let bin = el.bin;
-      let pieces = el.pieces;
-      let product = el.product.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
-      let bf = el.bf.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
-      let date = el.date_of_production.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
-      let length = el.length.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
-      let width = el.width.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
-      let quality = el.quality.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
-      let species = el.species.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
-      let thickness = el.thickness.replaceAll("\'", " feet ").replaceAll("\"", " inch ");
+      let rowObject = {
+        id: el.product_id,
+        bin: el.bin,
+        pieces: el.pieces,
+        product: el.product.replaceAll("'", ' feet ').replaceAll('"', ' inch '),
+        bf: el.bf.replaceAll("'", ' feet ').replaceAll('"', ' inch '),
+        date: el.date_of_production
+          .replaceAll("'", ' feet ')
+          .replaceAll('"', ' inch '),
+        length: el.length.replaceAll("'", ' feet ').replaceAll('"', ' inch '),
+        width: el.width.replaceAll("'", ' feet ').replaceAll('"', ' inch '),
+        quality: el.quality.replaceAll("'", ' feet ').replaceAll('"', ' inch '),
+        species: el.species.replaceAll("'", ' feet ').replaceAll('"', ' inch '),
+        thickness: el.thickness
+          .replaceAll("'", ' feet ')
+          .replaceAll('"', ' inch '),
+      };
+      executeSQL(insertQuery(tableName, rowObject));
+    });
+    let tab1 = executeSQL(selectQuery(tableName));
+    let tab2 = executeSQL(groupByQuery(tableName));
+    let tab3 = executeSQL(partialSelectQuery(tableName));
+    setTimeout(() => {
+      writeToExcel(tab1, tab2, tab3);
+    }, 1000);
+  };
 
-      let query = "INSERT INTO " + tableName + " (id, bin, pieces, product, bf, productDate, length, productWidth, quality, species, thickness) VALUES";
-      query = query + "('"
-        + id
-        + "','"
-        + bin
-        + "','"
-        + pieces
-        + "','"
-        + product
-        + "','"
-        + bf
-        + "','"
-        + date
-        + "','"
-        + length
-        + "','"
-        + width
-        + "','"
-        + quality
-        + "','"
-        + species
-        + "','"
-        + thickness
-        + "')";
+  const writeToExcel = (tab1, tab2, tab3) => {
+    let ws1 = XLSX.utils.json_to_sheet(tab1);
+    let ws2 = XLSX.utils.json_to_sheet(tab2);
+    let ws3 = XLSX.utils.json_to_sheet(tab3);
 
-      console.log("query: ", query);
-      db.transaction(tx => {
-        tx.executeSql(query, [], (tx, results) => {
-          console.log("insert into results: ", results)
-        })
-      })
-    })
-
-    let firstExcelTabArr = [];
-    let secondExcelTabArr = [];
-    db.transaction(tx => {
-      tx.executeSql(`SELECT * FROM ${tableName}`, [], (tx, results) => {
-        for (let i = 0; i < results.rows.length; ++i) {
-          firstExcelTabArr.push(results.rows.item(i));
-          //console.log("firstExcelTab: ", firstExcelTabArr);
-          setFirstExcelTab(firstExcelTabArr);
-        }
-      })
-
-      tx.executeSql(`SELECT product, thickness, count(product) FROM ${tableName} GROUP by product, thickness ORDER by product asc; `, [], (tx, results) => {
-        for (let i = 0; i < results.rows.length; ++i) {
-          secondExcelTabArr.push(results.rows.item(i));
-          setSecondExcelTab(secondExcelTabArr);
-          //console.log("second: ", secondExcelTabArr);
-        }
-      })
-    })
-  }
-
-
-  const writeToFile = () => {
-    // console.log('last: ', JSON.stringify(formInfos));
-    console.log("ff: ", firstExcelTab)
-    var ws1 = XLSX.utils.json_to_sheet(firstExcelTab);
-    var ws2 = XLSX.utils.json_to_sheet(secondExcelTab);
-    var ws3 = XLSX.utils.json_to_sheet(secondExcelTab);
-
-    var wb = XLSX.utils.book_new();
+    let wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws1, 'Summary');
     XLSX.utils.book_append_sheet(wb, ws2, 'FaceAndGradeCount');
     XLSX.utils.book_append_sheet(wb, ws3, 'PackPosition');
 
-    const wbout = XLSX.write(wb, { type: 'binary', bookType: 'xlsx' });
-    var RNFS = require('react-native-fs');
-    var file = RNFS.DocumentDirectoryPath + `/${tableName}.xlsx`;
+    const wbout = XLSX.write(wb, {type: 'binary', bookType: 'xlsx'});
+
+    let file = RNFS.DocumentDirectoryPath + `/${tableName}.xlsx`;
+
     writeFile(file, wbout, 'ascii')
       .then(r => {
-        console.log('SUCCESS: ', r);
-        console.log('file: ', file);
+        console.log('SUCCESS EXCEL: ', r);
+        setFormInfos(null);
+        navigation.push('OptionsScreen');
       })
       .catch(e => {
-        console.log('ERROR: ', e);
+        console.log('ERROR EXCEL: ', e);
       });
-  }
-
+  };
 
   return (
     <View style={[styles.outerContainer, style]} {...props}>
       <View style={styles.formHeadContainer}>
         <Text style={styles.imageTitle}>Image: {count + 1}</Text>
+        <TouchableOpacity onPress={() => getPhoto()} activeOpacity={0.6}>
+          <Text>Refresh</Text>
+        </TouchableOpacity>
         {/*
         <TouchableOpacity
           style={styles.removeImageButton}
@@ -303,7 +271,6 @@ const Form = ({
                 onChangeText={setDateOfProduction}
                 value={dateOfProduction}
                 placeholder="Date Of Production"
-                require
               />
             </View>
 
@@ -406,19 +373,49 @@ const Form = ({
                 placeholder="Bin"
               />
             </View>
+
+            <View style={styles.subInputContainer}>
+              <Text>Position</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={setPosition}
+                value={position}
+                placeholder="Position"
+              />
+            </View>
+
+            <View style={styles.subInputContainer}>
+              <Text>X</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={setX}
+                value={x}
+                placeholder="X"
+              />
+            </View>
+
+            <View style={styles.subInputContainer}>
+              <Text>Y</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={setY}
+                value={y}
+                placeholder="Y"
+              />
+            </View>
           </KeyboardAvoidingView>
         </View>
         <Image
           style={styles.image}
-          source={{ uri: image.uri }}
+          source={{uri: image.uri}}
           resizeMode="contain"
         />
       </ScrollView>
-      {count + 1 == total && (
+      {count + 1 === total && (
         <TouchableOpacity
           style={styles.submitButton}
           activeOpacity={0.8}
-          onPress={() => writeToExcel()}>
+          onPress={() => submitForms()}>
           <Text style={styles.buttonText}>Submit</Text>
         </TouchableOpacity>
       )}

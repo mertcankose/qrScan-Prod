@@ -1,45 +1,90 @@
-import { StyleSheet, Text, View, Pressable } from "react-native";
-import React from "react";
-import { ScrollView } from "react-native-gesture-handler";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
+import React, {useState, useEffect, useCallback} from 'react';
+import {ScrollView} from 'react-native-gesture-handler';
+import SQLite from 'react-native-sqlite-storage';
+import moment from 'moment';
+import FileViewer from 'react-native-file-viewer';
+import RNFS from 'react-native-fs';
 
-const excel_data = [
-  {
-    id: 1,
-    name: "03.05.2022.xls",
-  },
-  {
-    id: 2,
-    name: "22.04.2022.xls",
-  },
-  {
-    id: 3,
-    name: "02.11.2021.xls",
-  },
-];
+let db = SQLite.openDatabase({name: 'papers.db', createFromLocation: 1});
 
-const HistoryExcelList = ({ navigation }) => {
+const HistoryExcelList = ({navigation}) => {
+  const [tables, setTables] = useState([]);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  useEffect(() => {
+    getFilesFromPhone();
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    getFilesFromPhone();
+  }, []);
+
+  const getFilesFromPhone = () => {
+    db.transaction(tx => {
+      tx.executeSql(
+        "SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite%'",
+        [],
+        (tx, results) => {
+          let temp = [];
+          for (let i = 0; i < results.rows.length; ++i) {
+            temp.push(results.rows.item(i));
+          }
+          setTables(temp);
+          setRefreshing(false);
+        },
+      );
+    });
+  };
+
+  const openFile = fileName => {
+    let file = RNFS.DocumentDirectoryPath + `/${fileName}.xlsx`;
+
+    const path = FileViewer.open(file)
+      .then(() => {
+        console.log('File opened successfully');
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor="#1AC934"
+        />
+      }>
       <View style={styles.textsContainer}>
-        <Text style={styles.title}>Download excel file!</Text>
+        <Text style={styles.title}>Display excel files!</Text>
         <Text style={styles.subTitle}>
-          You can download excel files that you created earlier.
+          You can display excel files that you created earlier.
         </Text>
       </View>
 
-      {excel_data.map((item, index) => (
-        <Pressable
+      {tables.map((item, index) => (
+        <TouchableOpacity
           key={index}
           style={styles.excelContainer}
-          onPress={() =>
-            navigation.navigate("ExcelViewerScreen", {
-              id: item.id,
-              name: item.name,
-            })
-          }
-        >
-          <Text>{item.name}</Text>
-        </Pressable>
+          onPress={() => openFile(item.name)}
+          activeOpacity={0.6}>
+          <Text>
+            {moment(parseInt(item.name.split('_')[1])).format(
+              'DD/MM/YYYY - HH:mm:ss',
+            )}
+          </Text>
+        </TouchableOpacity>
       ))}
     </ScrollView>
   );
@@ -53,25 +98,25 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   textsContainer: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 16,
     marginBottom: 20,
   },
   title: {
-    fontWeight: "600",
+    fontWeight: '600',
     fontSize: 18,
-    textAlign: "center",
+    textAlign: 'center',
   },
   subTitle: {
     fontSize: 16,
-    color: "#6f76a7",
+    color: '#6f76a7',
     marginTop: 9,
-    textAlign: "center",
+    textAlign: 'center',
   },
   excelContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: "#c8ceed",
+    borderBottomColor: '#c8ceed',
     paddingHorizontal: 10,
     paddingVertical: 12,
     marginBottom: 3,

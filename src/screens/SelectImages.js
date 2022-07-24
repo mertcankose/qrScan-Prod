@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {useState, useEffect, useContext} from 'react';
 import {
   StyleSheet,
@@ -11,41 +12,37 @@ import {
 } from 'react-native';
 import Form from '../components/Form';
 import ImagePicker from 'react-native-image-crop-picker';
-//import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import {uploadPicture, getPicture} from '../api/RestApi';
+import {uploadPicture} from '../api/RestApi';
 import {AuthContext} from '../context/Auth';
 import ImageResizer from 'react-native-image-resizer';
 import Loading from '../components/Loading';
-//import Carousel from 'react-native-snap-carousel';
-
-
 
 let screenWidth = Dimensions.get('window').width;
-let screenHeight = Dimensions.get('window').height;
-
-const imageOptions = {};
 
 const SelectImages = ({navigation, route}) => {
   const [paging, setPaging] = useState(1);
   const [images, setImages] = useState([]);
-  const [responseImages, setResponseImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  // const [isFormOkay, setIsFormOkay] = useState(false);
-  const [imageNames, setImageNames] = useState([]);
   const [isDoneUpload, setIsDoneUpload] = useState(false);
+  const [tableName, setTableName] = useState('');
 
-  const {cognitoToken, formInfos, addElementToFormInfos} =
-    useContext(AuthContext);
+  const {cognitoToken} = useContext(AuthContext);
 
   useEffect(() => {
+    // set table name
+    if (route.params.fileName && route.params.fileName.length > 0) {
+      setTableName(route.params.fileName);
+    } else {
+      setTableName('file_' + Date.now());
+    }
+  }, []);
+
+  useEffect(() => {
+    // control upload done
     if (isDoneUpload) {
       setIsLoading(false);
     }
   }, [isDoneUpload]);
-
-  const changePaging = event => {
-    setPaging(Math.round(event.nativeEvent.contentOffset.x / screenWidth) + 1);
-  };
 
   const openCamera = () => {
     ImagePicker.openCamera({
@@ -74,17 +71,6 @@ const SelectImages = ({navigation, route}) => {
     });
   };
 
-  const clearAll = () => {
-    setImages([]);
-  };
-
-  const deleteImageFromArray = uniqueUrl => {
-    let filteredArr = images.filter(el => {
-      return el.sourceURL != uniqueUrl;
-    });
-    setImages(filteredArr);
-  };
-
   const uploadPhotosToServer = async comingImages => {
     setIsLoading(true);
 
@@ -94,19 +80,14 @@ const SelectImages = ({navigation, route}) => {
       let responseImage = await resizeImage(img);
       myImages.push(responseImage);
 
-      /* control duplicate */
-      // let myArray = [];
-      // myArray.push(responseImage)
-
       let response = await uploadPicture(
         responseImage.uri,
         responseImage.name,
         cognitoToken,
       );
-      console.log('upload photo response: ', response);
       myArr.push(response);
 
-      if (myArr.length == comingImages.length) {
+      if (myArr.length === comingImages.length) {
         setIsDoneUpload(true);
         setImages(myImages);
       }
@@ -124,17 +105,25 @@ const SelectImages = ({navigation, route}) => {
         80,
       );
       return resizedImage;
-      /*return img;*/
     } catch (error) {
       console.log('resizedImage Error: ', error);
     }
   };
 
-  /*
-  const formOkay = value => {
-    setIsFormOkay(value);
+  const changePaging = event => {
+    setPaging(Math.round(event.nativeEvent.contentOffset.x / screenWidth) + 1);
   };
-  */
+
+  const clearAll = () => {
+    setImages([]);
+  };
+
+  const deleteImageFromArray = uniqueUrl => {
+    let filteredArr = images.filter(el => {
+      return el.sourceURL !== uniqueUrl;
+    });
+    setImages(filteredArr);
+  };
 
   return (
     <KeyboardAvoidingView
@@ -142,27 +131,22 @@ const SelectImages = ({navigation, route}) => {
       style={styles.container}>
       {isLoading && <Loading />}
       <View style={styles.titleContainer}>
-        {route.params.type == 'scratch' ? (
+        {route.params.type === 'scratch' ? (
           <Text style={styles.title}>Create from Scratch</Text>
         ) : (
           <Text style={styles.title}>Overwrite on Excel file!</Text>
         )}
       </View>
-      {/*
-      <TouchableOpacity
-          style={[styles.button, styles.galleryButton]}
-          activeOpacity={0.8}
-          onPress={() => getTest()}>
-          <Text style={[styles.buttonText, styles.galleryText]}>GET</Text>
-        </TouchableOpacity>
-      */}
+
       <View style={styles.buttonsContainer}>
+        {/*
         <TouchableOpacity
           style={[styles.button, styles.cameraButton]}
           activeOpacity={0.8}
           onPress={() => openCamera()}>
           <Text style={[styles.buttonText, styles.cameraText]}>CAMERA</Text>
         </TouchableOpacity>
+        */}
         <TouchableOpacity
           style={[styles.button, styles.galleryButton]}
           activeOpacity={0.8}
@@ -202,7 +186,9 @@ const SelectImages = ({navigation, route}) => {
                 paging={paging}
                 count={index}
                 total={images.length}
+                tableName={tableName}
                 deleteImage={unique => deleteImageFromArray(unique)}
+                navigation={navigation}
                 // formOkay={value => formOkay(value)}
                 style={{marginVertical: 10}}
               />
@@ -251,7 +237,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#C8CEEC',
     paddingHorizontal: 10,
-    paddingVertical: 2,
+    paddingVertical: 8,
     borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center',
