@@ -117,6 +117,9 @@ const Form = ({
             setBf(el?.response.bf);
             setPieces(el?.response.pieces);
             setBin(el?.response.bin);
+            setPosition(undefined);
+            setX(undefined);
+            setY(undefined);
           }
         }
       });
@@ -143,6 +146,10 @@ const Form = ({
     x,
     y,
   ]);
+
+  const stringHandler = str => {
+    return str.replaceAll("'", ' feet ').replaceAll('"', ' inch ');
+  };
 
   const changeValues = () => {
     let newObject = {
@@ -193,18 +200,17 @@ const Form = ({
         id: el.product_id,
         bin: el.bin,
         pieces: el.pieces,
-        product: el.product.replaceAll("'", ' feet ').replaceAll('"', ' inch '),
-        bf: el.bf.replaceAll("'", ' feet ').replaceAll('"', ' inch '),
-        date: el.date_of_production
-          .replaceAll("'", ' feet ')
-          .replaceAll('"', ' inch '),
-        length: el.length.replaceAll("'", ' feet ').replaceAll('"', ' inch '),
-        width: el.width.replaceAll("'", ' feet ').replaceAll('"', ' inch '),
-        quality: el.quality.replaceAll("'", ' feet ').replaceAll('"', ' inch '),
-        species: el.species.replaceAll("'", ' feet ').replaceAll('"', ' inch '),
-        thickness: el.thickness
-          .replaceAll("'", ' feet ')
-          .replaceAll('"', ' inch '),
+        product: stringHandler(el.product),
+        bf: stringHandler(el.bf),
+        date: stringHandler(el.date_of_production),
+        length: stringHandler(el.length),
+        width: stringHandler(el.width),
+        quality: stringHandler(el.quality),
+        species: stringHandler(el.species),
+        thickness: stringHandler(el.thickness),
+        position: el.position,
+        x: el.x,
+        y: el.y,
       };
       executeSQL(insertQuery(tableName, rowObject));
     });
