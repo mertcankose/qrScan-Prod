@@ -22,6 +22,10 @@ const HistoryExcelList = ({navigation}) => {
     getFilesFromPhone();
   }, []);
 
+  useEffect(() => {
+    console.log('tables ', tables);
+  }, [tables]);
+
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     getFilesFromPhone();
@@ -44,16 +48,27 @@ const HistoryExcelList = ({navigation}) => {
     });
   };
 
-  const openFile = fileName => {
+  const openFile = async fileName => {
     let file = RNFS.DocumentDirectoryPath + `/${fileName}.xlsx`;
 
-    const path = FileViewer.open(file)
-      .then(() => {
-        console.log('File opened successfully');
-      })
-      .catch(error => {
-        console.log(error);
+    if (await RNFS.exists(RNFS.DocumentDirectoryPath + `/${fileName}.xlsx`)) {
+      console.log('BLAH EXISTS');
+    } else {
+      console.log('BLAH DOES NOT EXIST');
+
+      db.transaction(tx => {
+        tx.executeSql('DROP TABLE IF EXISTS ' + fileName, [], (tx, result) => {
+          getFilesFromPhone();
+        });
       });
+    }
+
+    try {
+      await FileViewer.open(file);
+      console.log('File opened successfully');
+    } catch (er) {
+      console.log('File opened error');
+    }
   };
 
   return (
