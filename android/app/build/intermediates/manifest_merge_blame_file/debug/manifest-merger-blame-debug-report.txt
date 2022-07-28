@@ -1,0 +1,211 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.qrscan"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="21"
+9        android:targetSdkVersion="31" />
+10
+11    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+11-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:9:5-77
+11-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:9:22-75
+12    <uses-permission android:name="android.permission.INTERNET" />
+12-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:4:5-67
+12-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:4:22-64
+13    <uses-permission android:name="android.permission.CAMERA" />
+13-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:5:5-64
+13-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:5:22-62
+14    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+14-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:6:5-80
+14-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:6:22-77
+15    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+15-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:7:5-81
+15-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:7:22-78
+16    <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
+16-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:8:5-88
+16-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:8:22-85
+17
+18    <uses-feature
+18-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:11:5-85
+19        android:name="android.hardware.camera"
+19-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:11:19-57
+20        android:required="false" />
+20-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:11:58-82
+21    <uses-feature
+21-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:12:5-91
+22        android:name="android.hardware.camera.front"
+22-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:12:19-63
+23        android:required="false" />
+23-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:12:64-88
+24
+25    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+25-->[com.facebook.flipper:flipper:0.125.0] /Users/mertcankose/.gradle/caches/transforms-3/95e931fbbfdb29d8fe263063f71e1fc3/transformed/jetified-flipper-0.125.0/AndroidManifest.xml:16:5-76
+25-->[com.facebook.flipper:flipper:0.125.0] /Users/mertcankose/.gradle/caches/transforms-3/95e931fbbfdb29d8fe263063f71e1fc3/transformed/jetified-flipper-0.125.0/AndroidManifest.xml:16:22-73
+26
+27    <queries>
+27-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:9:5-13:15
+28        <intent>
+28-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:10:9-12:18
+29            <action android:name="android.media.action.IMAGE_CAPTURE" />
+29-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:11:13-73
+29-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:11:21-70
+30        </intent>
+31    </queries> <!-- Required to access Google Play Licensing -->
+32    <uses-permission android:name="com.android.vending.CHECK_LICENSE" />
+32-->[:rn-fetch-blob] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/rn-fetch-blob/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:10:5-73
+32-->[:rn-fetch-blob] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/rn-fetch-blob/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:10:22-70
+33    <!--
+34         Required to keep CPU alive while downloading files
+35        (NOT to keep screen awake)
+36    -->
+37    <uses-permission android:name="android.permission.WAKE_LOCK" />
+37-->[:rn-fetch-blob] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/rn-fetch-blob/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:19:5-68
+37-->[:rn-fetch-blob] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/rn-fetch-blob/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:19:22-65
+38    <!--
+39         Required to poll the state of the network connection
+40        and respond to changes
+41    -->
+42    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+42-->[:rn-fetch-blob] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/rn-fetch-blob/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:25:5-79
+42-->[:rn-fetch-blob] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/rn-fetch-blob/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:25:22-76
+43
+44    <application
+44-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:14:5-34:19
+45        android:name="com.qrscan.MainApplication"
+45-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:15:7-38
+46        android:allowBackup="false"
+46-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:19:7-34
+47        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+47-->[androidx.core:core:1.7.0] /Users/mertcankose/.gradle/caches/transforms-3/b5a8e99dac667ebea08e9f9757d3b404/transformed/core-1.7.0/AndroidManifest.xml:24:18-86
+48        android:debuggable="true"
+49        android:icon="@mipmap/ic_launcher"
+49-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:17:7-41
+50        android:label="@string/app_name"
+50-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:16:7-39
+51        android:roundIcon="@mipmap/ic_launcher_round"
+51-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:18:7-52
+52        android:theme="@style/AppTheme"
+52-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:20:7-38
+53        android:usesCleartextTraffic="true" >
+53-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/debug/AndroidManifest.xml:8:9-44
+54        <activity
+54-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/debug/AndroidManifest.xml:11:9-111
+55            android:name="com.facebook.react.devsupport.DevSettingsActivity"
+55-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/debug/AndroidManifest.xml:11:19-83
+56            android:exported="false" />
+56-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/debug/AndroidManifest.xml:11:84-108
+57        <activity
+57-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:21:7-33:18
+58            android:name="com.qrscan.MainActivity"
+58-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:22:9-37
+59            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
+59-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:24:9-118
+60            android:exported="true"
+60-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:27:9-32
+61            android:label="@string/app_name"
+61-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:23:9-41
+62            android:launchMode="singleTask"
+62-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:25:9-40
+63            android:windowSoftInputMode="adjustResize" >
+63-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:26:9-51
+64            <intent-filter>
+64-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:28:9-32:25
+65                <action android:name="android.intent.action.MAIN" />
+65-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:29:13-65
+65-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:29:21-62
+66
+67                <category android:name="android.intent.category.LAUNCHER" />
+67-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:30:13-73
+67-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:30:23-70
+68
+69                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+69-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:31:13-77
+69-->/Users/mertcankose/Desktop/business/special/QrScan/android/app/src/main/AndroidManifest.xml:31:21-75
+70            </intent-filter>
+71        </activity>
+72
+73        <provider
+73-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:18:9-26:20
+74            android:name="com.reactnative.ivpusic.imagepicker.IvpusicImagePickerFileProvider"
+74-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:19:13-94
+75            android:authorities="com.qrscan.provider"
+75-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:20:13-60
+76            android:exported="false"
+76-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:21:13-37
+77            android:grantUriPermissions="true" >
+77-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:22:13-47
+78            <meta-data
+78-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:23:13-25:78
+79                android:name="android.support.FILE_PROVIDER_PATHS"
+79-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:24:17-67
+80                android:resource="@xml/ivpusic_imagepicker_provider_paths" />
+80-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:25:17-75
+81        </provider>
+82
+83        <activity
+83-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:28:9-30:72
+84            android:name="com.yalantis.ucrop.UCropActivity"
+84-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:29:13-60
+85            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+85-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:30:13-69
+86
+87        <provider
+87-->[:react-native-webview] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-webview/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:10:9-18:20
+88            android:name="com.reactnativecommunity.webview.RNCWebViewFileProvider"
+88-->[:react-native-webview] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-webview/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:11:13-83
+89            android:authorities="com.qrscan.fileprovider"
+89-->[:react-native-webview] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-webview/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:12:13-64
+90            android:exported="false"
+90-->[:react-native-webview] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-webview/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:13:13-37
+91            android:grantUriPermissions="true" >
+91-->[:react-native-webview] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-webview/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:14:13-47
+92            <meta-data
+92-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:23:13-25:78
+93                android:name="android.support.FILE_PROVIDER_PATHS"
+93-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:24:17-67
+94                android:resource="@xml/file_provider_paths" />
+94-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:25:17-75
+95        </provider>
+96        <provider
+96-->[:rn-fetch-blob] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/rn-fetch-blob/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:34:9-42:20
+97            android:name="com.RNFetchBlob.Utils.FileProvider"
+97-->[:rn-fetch-blob] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/rn-fetch-blob/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:35:13-62
+98            android:authorities="com.qrscan.provider"
+98-->[:rn-fetch-blob] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/rn-fetch-blob/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:36:13-60
+99            android:exported="false"
+99-->[:rn-fetch-blob] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/rn-fetch-blob/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:37:13-37
+100            android:grantUriPermissions="true" >
+100-->[:rn-fetch-blob] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/rn-fetch-blob/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:38:13-47
+101            <meta-data
+101-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:23:13-25:78
+102                android:name="android.support.FILE_PROVIDER_PATHS"
+102-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:24:17-67
+103                android:resource="@xml/provider_paths" />
+103-->[:react-native-image-crop-picker] /Users/mertcankose/Desktop/business/special/QrScan/node_modules/react-native-image-crop-picker/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:25:17-75
+104        </provider>
+105        <provider
+105-->[androidx.emoji2:emoji2:1.0.0] /Users/mertcankose/.gradle/caches/transforms-3/31798a0ea3f25ea98e44c876b4851b08/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:26:9-34:20
+106            android:name="androidx.startup.InitializationProvider"
+106-->[androidx.emoji2:emoji2:1.0.0] /Users/mertcankose/.gradle/caches/transforms-3/31798a0ea3f25ea98e44c876b4851b08/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:27:13-67
+107            android:authorities="com.qrscan.androidx-startup"
+107-->[androidx.emoji2:emoji2:1.0.0] /Users/mertcankose/.gradle/caches/transforms-3/31798a0ea3f25ea98e44c876b4851b08/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:28:13-68
+108            android:exported="false" >
+108-->[androidx.emoji2:emoji2:1.0.0] /Users/mertcankose/.gradle/caches/transforms-3/31798a0ea3f25ea98e44c876b4851b08/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:29:13-37
+109            <meta-data
+109-->[androidx.emoji2:emoji2:1.0.0] /Users/mertcankose/.gradle/caches/transforms-3/31798a0ea3f25ea98e44c876b4851b08/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:31:13-33:52
+110                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+110-->[androidx.emoji2:emoji2:1.0.0] /Users/mertcankose/.gradle/caches/transforms-3/31798a0ea3f25ea98e44c876b4851b08/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:32:17-75
+111                android:value="androidx.startup" />
+111-->[androidx.emoji2:emoji2:1.0.0] /Users/mertcankose/.gradle/caches/transforms-3/31798a0ea3f25ea98e44c876b4851b08/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:33:17-49
+112            <meta-data
+112-->[androidx.lifecycle:lifecycle-process:2.4.0] /Users/mertcankose/.gradle/caches/transforms-3/39517e1b011367242185b54afc0b3c9e/transformed/jetified-lifecycle-process-2.4.0/AndroidManifest.xml:31:13-33:52
+113                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+113-->[androidx.lifecycle:lifecycle-process:2.4.0] /Users/mertcankose/.gradle/caches/transforms-3/39517e1b011367242185b54afc0b3c9e/transformed/jetified-lifecycle-process-2.4.0/AndroidManifest.xml:32:17-78
+114                android:value="androidx.startup" />
+114-->[androidx.lifecycle:lifecycle-process:2.4.0] /Users/mertcankose/.gradle/caches/transforms-3/39517e1b011367242185b54afc0b3c9e/transformed/jetified-lifecycle-process-2.4.0/AndroidManifest.xml:33:17-49
+115        </provider>
+116    </application>
+117
+118</manifest>

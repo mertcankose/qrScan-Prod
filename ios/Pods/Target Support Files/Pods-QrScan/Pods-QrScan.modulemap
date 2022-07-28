@@ -1,0 +1,6 @@
+module Pods_QrScan {
+  umbrella header "Pods-QrScan-umbrella.h"
+
+  export *
+  module * { export * }
+}

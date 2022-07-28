@@ -11,6 +11,7 @@ import SQLite from 'react-native-sqlite-storage';
 import moment from 'moment';
 import FileViewer from 'react-native-file-viewer';
 import RNFS from 'react-native-fs';
+import {executeSQL, dropTableQuery} from '../api/Sql';
 
 let db = SQLite.openDatabase({name: 'papers.db', createFromLocation: 1});
 
@@ -21,10 +22,6 @@ const HistoryExcelList = ({navigation}) => {
   useEffect(() => {
     getFilesFromPhone();
   }, []);
-
-  useEffect(() => {
-    console.log('tables ', tables);
-  }, [tables]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -52,20 +49,13 @@ const HistoryExcelList = ({navigation}) => {
     let file = RNFS.DocumentDirectoryPath + `/${fileName}.xlsx`;
 
     if (await RNFS.exists(RNFS.DocumentDirectoryPath + `/${fileName}.xlsx`)) {
-      console.log('BLAH EXISTS');
     } else {
-      console.log('BLAH DOES NOT EXIST');
-
-      db.transaction(tx => {
-        tx.executeSql('DROP TABLE IF EXISTS ' + fileName, [], (tx, result) => {
-          getFilesFromPhone();
-        });
-      });
+      executeSQL(dropTableQuery(fileName));
+      getFilesFromPhone();
     }
 
     try {
       await FileViewer.open(file);
-      console.log('File opened successfully');
     } catch (er) {
       console.log('File opened error');
     }
